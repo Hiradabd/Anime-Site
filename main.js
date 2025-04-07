@@ -70,6 +70,16 @@ function populateAnimeGrid() {
     });
 }
 
+// Populate new releases slider
+function populateNewReleases() {
+    const currentYear = new Date().getFullYear();
+    const newReleases = animeData.filter(anime => anime.year === currentYear);
+    newReleases.forEach(anime => {
+        const card = createAnimeCard(anime);
+        animeSlider.appendChild(card);
+    });
+}
+
 // Modal functionality
 function openModal(modal) {
     modal.style.display = 'block';
@@ -176,9 +186,25 @@ searchInput.addEventListener('keypress', (e) => {
     }
 });
 
+// Event listener for genre cards
+const genreCards = document.querySelectorAll('.genre-card');
+genreCards.forEach(card => {
+    card.addEventListener('click', () => {
+        const genre = card.getAttribute('data-genre');
+        const filteredAnime = animeData.filter(anime => anime.genre.includes(genre));
+        animeGrid.innerHTML = '';
+        filteredAnime.forEach(anime => {
+            const card = createAnimeCard(anime);
+            animeGrid.appendChild(card);
+        });
+    });
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     populateAnimeGrid();
+    populateNewReleases();
+    initAnimations();
     
     // Add animation classes to elements when they come into view
     const observer = new IntersectionObserver((entries) => {
@@ -194,4 +220,60 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.anime-card, .genre-card, .section-title').forEach(el => {
         observer.observe(el);
     });
-}); 
+});
+
+// Advanced Search Filters
+function advancedSearch(filters) {
+    const { year, rating, genre } = filters;
+    return animeData.filter(anime => {
+        const matchesYear = year ? anime.year === year : true;
+        const matchesRating = rating ? anime.rating >= rating : true;
+        const matchesGenre = genre ? anime.genre.includes(genre) : true;
+        return matchesYear && matchesRating && matchesGenre;
+    });
+}
+
+// Recommendation System (Mockup)
+function recommendAnime(userHistory) {
+    // Mockup logic for recommendations based on user history
+    return animeData.filter(anime => userHistory.genres.some(genre => anime.genre.includes(genre)));
+}
+
+// Real-time Notifications (Mockup)
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerText = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Example usage of new functions
+const searchFilters = { year: 2023, rating: 9.0, genre: 'Action' };
+const filteredAnime = advancedSearch(searchFilters);
+console.log('Filtered Anime:', filteredAnime);
+
+const userHistory = { genres: ['Action', 'Fantasy'] };
+const recommendations = recommendAnime(userHistory);
+console.log('Recommended Anime:', recommendations);
+
+showNotification('New anime added to your watchlist!');
+
+// Initialize Rellax for parallax effect
+const rellax = new Rellax('.rellax');
+
+// GSAP Animations
+function initAnimations() {
+    gsap.from('.hero-content h1', { duration: 1, y: -50, opacity: 0, ease: 'bounce' });
+    gsap.from('.hero-content p', { duration: 1, y: 50, opacity: 0, delay: 0.5 });
+    gsap.from('.cta-btn', { duration: 1, scale: 0.5, opacity: 0, delay: 1 });
+    gsap.from('.anime-card', {
+        scrollTrigger: '.anime-card',
+        duration: 1,
+        opacity: 0,
+        y: 100,
+        stagger: 0.2
+    });
+} 
